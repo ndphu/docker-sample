@@ -1,0 +1,12 @@
+#!/bin/bash
+
+IMAGE=$1
+NAME=$2
+
+CONTAINER_ID=$(docker run -d --name $NAME -it $IMAGE) 
+
+IP=$(docker inspect --format '{{.NetworkSettings.IPAddress}}' $NAME)
+
+echo "$IP $NAME" >> /etc/hosts
+
+
