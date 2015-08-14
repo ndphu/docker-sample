@@ -1,16 +1,33 @@
 #!/bin/bash
 
-IMAGE=$1
-NAME=$2
-ARGS=$3
+for i in "$@"
+do
+case $i in
+    --name=*)
+    NAME="${i#*=}"
+    ;;
+    --image=*)
+    IMAGE="${i#*=}"
+    ;;
+    --extra-args=*)
+    ARGS="${i#*=}"
+    ;;
+esac
+done
 
-CONTAINER_ID=$(docker run -d --name $NAME $ARGS -it $IMAGE) 
+echo "Starting container" ${NAME} "from image" ${IMAGE} "with additional args " ${ARGS}
 
-IP=$(docker inspect --format '{{.NetworkSettings.IPAddress}}' $NAME)
+docker rm -f $NAME
+
+CONTAINER_ID=$(docker run -d --name ${NAME} ${ARGS} -it ${IMAGE}) 
+
+IP=$(docker inspect --format '{{.NetworkSettings.IPAddress}}' ${NAME})
+
+sed -i "/$NAME/d" /etc/hosts
 
 echo "$IP $NAME" >> /etc/hosts
 echo "$IP" >> known_hosts
 
-sshpass -f password.txt ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no ndphu@$NAME
+sshpass -f password.txt ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no ndphu@${NAME}
 
 
