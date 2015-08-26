@@ -6,6 +6,6 @@ do
     echo $container_name
     address=$(docker inspect --format "{{.NetworkSettings.IPAddress}}" $container_name); 
     sed -i "/$container_name/d" $hosts_file; 
-    sed -i "/$address/d" $hosts_file;
+    sed -i "/$address /d" $hosts_file;
     echo $address $container_name >> $hosts_file; 
 done
